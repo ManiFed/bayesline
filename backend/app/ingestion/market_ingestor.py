@@ -29,9 +29,16 @@ class MarketIngestor:
         ]
 
     async def ingest_all(self) -> list[Market]:
-        """Fetch active markets from all venues concurrently."""
+        """Fetch active markets from all venues concurrently.
+
+        Each venue gets a 15-second timeout so one slow/down API cannot
+        block the entire ingestion cycle.
+        """
+        async def _fetch_with_timeout(c: MarketConnector) -> list[Market]:
+            return await asyncio.wait_for(c.fetch_active_markets(), timeout=15)
+
         results = await asyncio.gather(
-            *[c.fetch_active_markets() for c in self.connectors],
+            *[_fetch_with_timeout(c) for c in self.connectors],
             return_exceptions=True,
         )
 

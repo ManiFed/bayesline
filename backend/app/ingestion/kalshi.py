@@ -29,7 +29,7 @@ class KalshiConnector(MarketConnector):
                 headers["Authorization"] = f"Bearer {settings.kalshi_api_key}"
             self._client = httpx.AsyncClient(
                 base_url=self.base_url,
-                timeout=30.0,
+                timeout=httpx.Timeout(10.0, connect=5.0),
                 headers=headers,
             )
         return self._client

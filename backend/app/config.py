@@ -7,6 +7,7 @@ from typing import Optional
 class Settings(BaseSettings):
     app_name: str = "Bayesline"
     debug: bool = False
+    port: int = 8000  # Many platforms (Render, Railway, Cloud Run) set PORT
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./bayesline.db"
