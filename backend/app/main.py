@@ -87,12 +87,6 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api/v1")
 
-# Serve the built frontend when running in the combined Docker image.
-# The Dockerfile copies the Vite build output into ./static.
-_static_dir = Path(__file__).resolve().parent.parent / "static"
-if _static_dir.is_dir():
-    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="frontend")
-
 
 @app.get("/health")
 async def health():
@@ -106,3 +100,11 @@ async def readiness():
     if orchestrator and orchestrator.store.stats()["topics"] > 0:
         return {"status": "ready", "topics": orchestrator.store.stats()["topics"]}
     return {"status": "warming_up", "topics": 0}
+
+
+# Serve the built frontend LAST — mount("/") is a catch-all that will shadow
+# any route registered after it.  By placing it here, /health, /ready, and
+# /api/v1/* are all registered first and take priority.
+_static_dir = Path(__file__).resolve().parent.parent / "static"
+if _static_dir.is_dir():
+    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="frontend")
