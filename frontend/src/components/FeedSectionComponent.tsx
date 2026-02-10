@@ -1,5 +1,5 @@
 import type { FeedSection } from "../types";
-import TopicCardComponent from "./TopicCardComponent";
+import StoryCardComponent from "./StoryCardComponent";
 
 interface Props {
   section: FeedSection;
@@ -12,12 +12,13 @@ export default function FeedSectionComponent({ section, onSelectTopic }: Props) 
   return (
     <div className="feed-section">
       <div className="section-header">
-        <div className={`section-indicator ${section.name}`} />
         <span className="section-title">{section.display_name}</span>
-        <span className="section-desc">{section.description}</span>
+        {section.description && (
+          <span className="section-desc">{section.description}</span>
+        )}
       </div>
       {section.items.map((item) => (
-        <TopicCardComponent
+        <StoryCardComponent
           key={item.card.id}
           card={item.card}
           onClick={() => onSelectTopic(item.card.id)}
