@@ -3,6 +3,7 @@ from .news import NewsArticle, PrimarySource
 from .topic import ImpactTopic, TopicCard, TopicScores, TopicMarketMapping
 from .entity import Entity, EntityRelation
 from .feed import FeedItem, FeedSection, FeedResponse, UserPreferences
+from .narrative import Narrative, NarrativeSummary, NarrativeDetail, NarrativePoint
 
 __all__ = [
     "Market", "MarketSnapshot", "MarketSignals",
@@ -10,4 +11,5 @@ __all__ = [
     "ImpactTopic", "TopicCard", "TopicScores", "TopicMarketMapping",
     "Entity", "EntityRelation",
     "FeedItem", "FeedSection", "FeedResponse", "UserPreferences",
+    "Narrative", "NarrativeSummary", "NarrativeDetail", "NarrativePoint",
 ]

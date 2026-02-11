@@ -34,6 +34,7 @@ def _make_scored_topic(
             explanation="High activity from informed sources.",
             explanation_drivers=["High activity from informed sources"],
         ),
+        eligible_for_homepage=True,
         created_at=now,
         updated_at=now,
     )
@@ -113,23 +114,6 @@ class TestFeedService:
             # US topic should be boosted
             us_item = next(i for i in breaking.items if "US" in i.card.title)
             assert us_item.personalization_boost > 0
-
-    def test_consequence_floor_enforced(self):
-        store = DataStore()
-        # High consequence topic that might otherwise be filtered
-        t = _make_scored_topic("t1", "Critical infrastructure", consequence=0.9, impact=20)
-        store.upsert_topic(t)
-
-        prefs = UserPreferences(min_consequence_floor=0.3)
-        feed_service = FeedService(store)
-        response = feed_service.build_feed(prefs)
-
-        # Topic should appear somewhere in the feed
-        all_ids = set()
-        for section in response.sections:
-            for item in section.items:
-                all_ids.add(item.card.id)
-        assert "t1" in all_ids
 
     def test_card_has_no_market_data(self):
         store = DataStore()

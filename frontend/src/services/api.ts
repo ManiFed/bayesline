@@ -1,4 +1,10 @@
-import type { FeedResponse, TopicCard, TopicDetail } from "../types";
+import type {
+  FeedResponse,
+  TopicCard,
+  TopicDetail,
+  NarrativeSummary,
+  NarrativeDetail,
+} from "../types";
 
 const BASE = "/api/v1";
 
@@ -15,25 +21,25 @@ export async function getFeed(params?: {
   page_size?: number;
   geographies?: string;
   sectors?: string;
-  prefer_undercovered?: boolean;
-  prefer_deadlines?: boolean;
 }): Promise<FeedResponse> {
   const search = new URLSearchParams();
   if (params?.page) search.set("page", String(params.page));
   if (params?.page_size) search.set("page_size", String(params.page_size));
   if (params?.geographies) search.set("geographies", params.geographies);
   if (params?.sectors) search.set("sectors", params.sectors);
-  if (params?.prefer_undercovered)
-    search.set("prefer_undercovered", "true");
-  if (params?.prefer_deadlines) search.set("prefer_deadlines", "true");
   const qs = search.toString();
   return fetchJson<FeedResponse>(`${BASE}/feed${qs ? "?" + qs : ""}`);
 }
 
-export async function getTopics(
-  category?: string,
-  limit?: number
-): Promise<TopicCard[]> {
+export async function getRecent(limit = 25): Promise<TopicCard[]> {
+  return fetchJson<TopicCard[]>(`${BASE}/feed/recent?limit=${limit}`);
+}
+
+export async function getTrending(limit = 25): Promise<TopicCard[]> {
+  return fetchJson<TopicCard[]>(`${BASE}/feed/trending?limit=${limit}`);
+}
+
+export async function getTopics(category?: string, limit?: number): Promise<TopicCard[]> {
   const search = new URLSearchParams();
   if (category) search.set("category", category);
   if (limit) search.set("limit", String(limit));
@@ -43,6 +49,18 @@ export async function getTopics(
 
 export async function getTopicDetail(id: string): Promise<TopicDetail> {
   return fetchJson<TopicDetail>(`${BASE}/topics/${encodeURIComponent(id)}/detail`);
+}
+
+export async function getNarratives(): Promise<NarrativeSummary[]> {
+  return fetchJson<NarrativeSummary[]>(`${BASE}/narratives`);
+}
+
+export async function getNarrativeDetail(id: string): Promise<NarrativeDetail> {
+  return fetchJson<NarrativeDetail>(`${BASE}/narratives/${encodeURIComponent(id)}`);
+}
+
+export async function getMethodology(): Promise<Record<string, unknown>> {
+  return fetchJson<Record<string, unknown>>(`${BASE}/methodology`);
 }
 
 export async function triggerPipeline(): Promise<{ status: string }> {

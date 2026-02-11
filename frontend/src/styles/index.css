@@ -787,3 +787,44 @@ html, body {
     gap: 8px;
   }
 }
+
+.nav-link {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.page-block {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.page-subtitle {
+  color: #778;
+  margin-bottom: 16px;
+}
+
+.narrative-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.narrative-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #d8dbe8;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.narrative-detail,
+.methodology-block {
+  border: 1px solid #d8dbe8;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}

@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     manipulation_risk_penalty: float = 0.15
     hype_gap_penalty: float = 0.10
 
+    # ImpactScore v2 controls
+    homepage_recency_hours: int = 48
+    min_mapping_confidence: float = 0.45
+    story_layer_weight: float = 0.5
+    market_evidence_weight: float = 0.5
+    novelty_penalty_weight: float = 0.35
+
     # Market activity composite weights
     volume_weight: float = 0.35
     open_interest_weight: float = 0.25

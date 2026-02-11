@@ -52,6 +52,19 @@ export interface TopicDetail {
   deadlines: Deadline[];
   citations: Citation[];
   updated_at: string;
+  reaction_events?: ReactionEvent[];
+}
+
+export interface ReactionEvent {
+  market_id: string;
+  reaction_start_time: string;
+  peak_move_time: string;
+  peak_magnitude: number;
+  persistence_minutes: number;
+  reversal_magnitude: number;
+  implied_surprise: number;
+  moved_pre_story: boolean;
+  confirmed: boolean;
 }
 
 export interface FeedItem {
@@ -83,4 +96,30 @@ export interface UserPreferences {
   severity_preference: string;
   prefer_undercovered: boolean;
   prefer_deadlines: boolean;
+}
+
+
+export interface NarrativeSummary {
+  id: string;
+  label: string;
+  description: string;
+  last_updated: string;
+  weekly_cumulative_impact: number;
+}
+
+export interface NarrativePoint {
+  timestamp: string;
+  cumulative_impact: number;
+}
+
+export interface NarrativeDetail {
+  id: string;
+  label: string;
+  description: string;
+  last_updated: string;
+  cumulative_impact_curve: NarrativePoint[];
+  topic_ids: string[];
+  key_markets: string[];
+  coverage_diversity: number;
+  bias_spread: number;
 }
