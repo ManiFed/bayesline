@@ -1,21 +1,21 @@
 import type { TopicCard } from "../types";
 
-function impactLevel(score: number): string {
-  if (score >= 60) return "High";
-  if (score >= 30) return "Medium";
-  return "Low";
+function impactLevel(score: number): "high" | "medium" | "low" {
+  if (score >= 60) return "high";
+  if (score >= 30) return "medium";
+  return "low";
 }
 
 function timeAgo(iso: string): string {
   try {
     const diff = Date.now() - new Date(iso).getTime();
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 1) return "now";
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `Published ${hours}h ago`;
+    if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
-    return `Published ${days}d ago`;
+    return `${days}d`;
   } catch {
     return "";
   }
@@ -37,7 +37,7 @@ function extractSources(card: TopicCard): string {
     .filter((v, i, a) => a.indexOf(v) === i)
     .slice(0, 4);
 
-  return sources.join(" \u2022 ");
+  return sources.join(" / ");
 }
 
 interface Props {
@@ -49,40 +49,39 @@ export default function StoryCardComponent({ card, onClick }: Props) {
   const sources = extractSources(card);
   const level = impactLevel(card.impact_score);
   const fillWidth = Math.min(Math.max(card.impact_score, 0), 100);
+  const score = Math.round(card.impact_score);
 
   return (
     <div className="story-card" onClick={onClick}>
-      {/* Headline */}
+      <div className="story-card-top">
+        {card.category && <span className="story-category">{card.category}</span>}
+        <span className="story-time">{timeAgo(card.updated_at)}</span>
+      </div>
+
       <h3 className="story-headline">{card.title}</h3>
 
-      {/* Source line */}
       {sources && <div className="story-sources">{sources}</div>}
 
-      {/* Summary */}
       {card.summary && <p className="story-summary">{card.summary}</p>}
 
-      {/* Impact bar */}
       <div className="story-impact-row">
-        <span className="impact-label">Market Impact</span>
+        <span className="impact-label">Impact</span>
         <div className="impact-bar-track">
           <div
             className="impact-bar-fill"
+            data-level={level}
             style={{ width: `${fillWidth}%` }}
           />
           <div className="impact-tooltip">
-            ImpactScore: {Math.round(card.impact_score)}
+            ImpactScore {score}/100
           </div>
         </div>
-        <span className="impact-level">{level}</span>
+        <span className="impact-score-num" data-level={level}>{score}</span>
       </div>
 
-      {/* Market reaction snippet */}
       {card.what_changed_today && (
         <p className="story-market-snippet">{card.what_changed_today}</p>
       )}
-
-      {/* Timestamp */}
-      <span className="story-time">{timeAgo(card.updated_at)}</span>
     </div>
   );
 }
