@@ -148,6 +148,8 @@ class TopicDiscovery:
         topic.article_ids = article_ids
         topic.citations = citations
         topic.updated_at = now
+        topic.market_taxonomy = self._infer_market_taxonomy(markets, title, category)
+        topic.narrative_id, topic.narrative_label = self._infer_narrative(topic, entities)
 
         # Set up market mappings with dedup weights
         dedup_clusters = self.deduplicator.find_clusters(markets)
@@ -236,6 +238,36 @@ class TopicDiscovery:
         slug = re.sub(r"[^a-z0-9\s-]", "", slug)
         slug = re.sub(r"\s+", "-", slug).strip("-")
         return slug[:60]
+
+
+    @staticmethod
+    def _infer_market_taxonomy(markets: list[Market], title: str, category: str) -> str:
+        text = f"{title} {category} " + " ".join(m.question.lower() for m in markets)
+        if any(k in text for k in ["coin flip", "heads or tails"]):
+            return "coin_flip"
+        if any(k in text for k in ["lottery", "jackpot"]):
+            return "lottery"
+        if any(k in text for k in ["match", "game", "vs", "final score", "touchdown"]):
+            return "sports_outcome"
+        if any(k in text for k in ["novelty", "meme", "celebrity"]):
+            return "novelty_gambling"
+        if category in {"politics", "economy", "government", "geopolitics"}:
+            return "political_macro"
+        if category in {"regulation", "legal", "finance"}:
+            return "corporate_regulatory"
+        return "financial_instrument_price"
+
+    @staticmethod
+    def _infer_narrative(topic: ImpactTopic, entities: list) -> tuple[str, str]:
+        entity_names = [e.name for e in entities[:2]]
+        if topic.category in {"geopolitics", "war"}:
+            nid = f"narrative:geopolitics:{'+'.join(entity_names).lower()}" if entity_names else "narrative:geopolitics"
+            return nid, "Geopolitical escalation"
+        if topic.category in {"economy", "government"}:
+            return "narrative:macro-policy", "Macro policy and fiscal risk"
+        if topic.category in {"technology", "finance"}:
+            return "narrative:tech-and-capital", "Tech and capital markets"
+        return "", ""
 
     @staticmethod
     def _entity_cluster_key(entities: list) -> str:

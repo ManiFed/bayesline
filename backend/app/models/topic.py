@@ -18,6 +18,13 @@ class TopicScores(BaseModel):
     expected_consequence: float = 0.0
     time_sensitivity: float = 0.0
     manipulation_risk: float = 0.0
+    story_layer_score: float = 0.0
+    market_evidence_score: float = 0.0
+    public_eligibility_score: float = 0.0
+    story_market_mapping_confidence: float = 0.0
+    market_triviality_penalty: float = 0.0
+    narrative_coherence_boost: float = 0.0
+    narrative_novelty_boost: float = 0.0
 
     # Final score (0-100)
     impact_score: float = 0.0
@@ -66,6 +73,20 @@ class Citation(BaseModel):
     is_primary: bool = False
 
 
+class MarketReactionEvent(BaseModel):
+    """Derived market reaction object for causal analysis."""
+
+    market_id: str
+    reaction_start_time: datetime
+    peak_move_time: datetime
+    peak_magnitude: float = 0.0
+    persistence_minutes: float = 0.0
+    reversal_magnitude: float = 0.0
+    implied_surprise: float = 0.0
+    moved_pre_story: bool = False
+    confirmed: bool = False
+
+
 class ImpactTopic(BaseModel):
     """The core object: a cluster connecting markets, news, and analysis."""
 
@@ -92,6 +113,14 @@ class ImpactTopic(BaseModel):
 
     # Scores
     scores: TopicScores = Field(default_factory=TopicScores)
+
+    # Story and ranking controls
+    approved_story_cluster: bool = True
+    eligible_for_homepage: bool = False
+    market_taxonomy: str = "financial_instrument_price"
+    narrative_id: str = ""
+    narrative_label: str = ""
+    reaction_events: list[MarketReactionEvent] = Field(default_factory=list)
 
     # Internal mappings (not sent to client)
     market_ids: list[str] = Field(default_factory=list)

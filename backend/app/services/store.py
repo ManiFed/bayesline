@@ -17,6 +17,7 @@ from ..models.market import Market, MarketSnapshot
 from ..models.news import NewsArticle, PrimarySource
 from ..models.topic import ImpactTopic, TopicMarketMapping
 from ..models.entity import Entity, EntityRelation
+from ..models.narrative import Narrative
 
 logger = structlog.get_logger()
 
@@ -42,6 +43,9 @@ class DataStore:
         # Entities
         self._entities: dict[str, Entity] = {}
         self._relations: list[EntityRelation] = []
+
+        # Narratives
+        self._narratives: dict[str, Narrative] = {}
 
     # ── Markets ──────────────────────────────────────────────────────────
 
@@ -147,6 +151,19 @@ class DataStore:
             if r.source_id == entity_id or r.target_id == entity_id
         ]
 
+
+    # ── Narratives ───────────────────────────────────────────────────────
+
+    def upsert_narrative(self, narrative: Narrative) -> None:
+        with self._lock:
+            self._narratives[narrative.id] = narrative
+
+    def get_narrative(self, narrative_id: str) -> Optional[Narrative]:
+        return self._narratives.get(narrative_id)
+
+    def get_all_narratives(self) -> list[Narrative]:
+        return list(self._narratives.values())
+
     # ── Stats ────────────────────────────────────────────────────────────
 
     def stats(self) -> dict:
@@ -158,4 +175,5 @@ class DataStore:
             "topics": len(self._topics),
             "entities": len(self._entities),
             "relations": len(self._relations),
+            "narratives": len(self._narratives),
         }

@@ -6,6 +6,7 @@ import pytest
 
 from app.models.market import Market, MarketSnapshot, MarketVenue, MarketStatus
 from app.models.topic import ImpactTopic, Deadline
+from app.models.news import NewsArticle
 from app.models.entity import Entity, EntityType
 from app.services.store import DataStore
 from app.scoring.market_signals import MarketSignalComputer
@@ -53,6 +54,19 @@ def _make_snapshots(
             volume_usd=1000 + i * 100,
         ))
     return snaps
+
+
+def _attach_recent_article(store: DataStore, topic: ImpactTopic, aid: str = "a1") -> None:
+    article = NewsArticle(
+        id=aid,
+        url=f"https://example.com/{aid}",
+        title=f"Report for {topic.title}",
+        source_name="Reuters",
+        published_at=datetime.now(timezone.utc) - timedelta(hours=2),
+    )
+    store.upsert_article(article)
+    topic.article_ids = [aid]
+    topic.approved_story_cluster = True
 
 
 class TestMarketSignalComputer:
@@ -166,6 +180,7 @@ class TestImpactScorer:
             category="government",
             market_ids=[market.id],
         )
+        _attach_recent_article(store, topic)
         store.upsert_topic(topic)
 
         scorer = ImpactScorer(store)
@@ -187,6 +202,7 @@ class TestImpactScorer:
                 category="politics",
                 market_ids=[market.id],
             )
+            _attach_recent_article(store, topic, aid=f"a{i}")
             store.upsert_topic(topic)
 
         scorer = ImpactScorer(store)

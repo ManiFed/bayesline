@@ -42,6 +42,7 @@ def _make_test_app() -> tuple[FastAPI, Orchestrator]:
                 explanation="High activity from informed sources.",
                 explanation_drivers=["High activity from informed sources"],
             ),
+            eligible_for_homepage=True,
             created_at=now,
             updated_at=now,
         )
