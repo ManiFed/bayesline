@@ -18,16 +18,18 @@ export default function App() {
     ? new Date(feed.generated_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
     : null;
 
+  const totalStories = feed ? feed.total_topics : 0;
+
   return (
     <>
       <nav className="top-nav">
         <div className="nav-left">
           <span className="nav-logo">Bayesline</span>
-          <span className="nav-tagline">Story-first market reaction intelligence</span>
+          <span className="nav-tagline">Prediction-market intelligence, distilled by AI</span>
         </div>
 
         <div className="nav-center">
-          <button className={`nav-link ${page === "home" ? "active" : ""}`} onClick={() => setPage("home")}>Home</button>
+          <button className={`nav-link ${page === "home" ? "active" : ""}`} onClick={() => setPage("home")}>Feed</button>
           <button className={`nav-link ${page === "narratives" ? "active" : ""}`} onClick={() => setPage("narratives")}>Narratives</button>
           <button className={`nav-link ${page === "methodology" ? "active" : ""}`} onClick={() => setPage("methodology")}>Methodology</button>
         </div>
@@ -38,21 +40,34 @@ export default function App() {
           <>
             <div className="page-header">
               <div className="page-header-row">
-                <h1 className="page-title">Today's most impactful stories</h1>
-                {lastUpdate && (
-                  <span className="page-updated">Updated continuously • Last update {lastUpdate}</span>
-                )}
+                <div>
+                  <h1 className="page-title">Intelligence Feed</h1>
+                </div>
+                <span className="page-updated">
+                  <span className="live-pulse" />
+                  {lastUpdate ? `Updated ${lastUpdate}` : "Connecting..."}
+                  {totalStories > 0 && <>&nbsp;&middot;&nbsp;{totalStories} stories tracked</>}
+                </span>
               </div>
             </div>
 
             {loading && !feed && (
-              <div className="loading"><div className="spinner" /><p style={{ marginTop: 16 }}>Loading stories...</p></div>
+              <div className="loading">
+                <div className="spinner" />
+                <p style={{ marginTop: 16, fontFamily: "var(--font-mono)", fontSize: 12 }}>Ingesting market signals...</p>
+              </div>
             )}
             {error && (
-              <div className="error-state"><p>Unable to load stories: {error}</p><button className="btn" onClick={refresh}>Try again</button></div>
+              <div className="error-state">
+                <p>Unable to load stories: {error}</p>
+                <button className="btn" onClick={refresh}>Retry</button>
+              </div>
             )}
             {feed && feed.total_topics === 0 && (
-              <div className="empty-state"><p>No stories yet.</p><p>Stories appear when approved reporting is ingested and scored.</p></div>
+              <div className="empty-state">
+                <p>No stories yet.</p>
+                <p>Stories surface when prediction market activity intersects with real-world reporting.</p>
+              </div>
             )}
             {feed && feed.sections.map((section) => (
               <FeedSectionComponent key={section.name} section={section} onSelectTopic={setSelectedTopicId} />
@@ -68,7 +83,10 @@ export default function App() {
       {selectedTopicId && detailLoading && (
         <div className="detail-overlay" onClick={() => setSelectedTopicId(null)}>
           <div className="story-page" onClick={(e) => e.stopPropagation()}>
-            <div className="loading"><div className="spinner" /><p style={{ marginTop: 16 }}>Loading story...</p></div>
+            <div className="loading">
+              <div className="spinner" />
+              <p style={{ marginTop: 16, fontFamily: "var(--font-mono)", fontSize: 12 }}>Loading intelligence...</p>
+            </div>
           </div>
         </div>
       )}

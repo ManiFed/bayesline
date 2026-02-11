@@ -62,7 +62,7 @@ function extractSources(detail: TopicDetail): string {
     .filter((v, i, a) => a.indexOf(v) === i)
     .slice(0, 5);
 
-  return sources.join(" \u2022 ");
+  return sources.join(" / ");
 }
 
 interface Props {
@@ -81,22 +81,26 @@ export default function StoryPage({ detail, onClose }: Props) {
           &times;
         </button>
 
-        {/* ─── Header ─── */}
+        {/* Header */}
+        <div className="story-page-meta">
+          <span className="ai-badge">AI Summary</span>
+          <span
+            className={`story-page-impact-badge ${impactBadgeClass(detail.impact_score)}`}
+          >
+            Impact: {impactLabel(detail.impact_score)} ({Math.round(detail.impact_score)})
+          </span>
+        </div>
+
         <h1 className="story-page-headline">{detail.title}</h1>
 
         <div className="story-page-meta">
           {sources && <span className="story-page-sources">{sources}</span>}
           <span className="story-page-time">{timeAgo(detail.updated_at)}</span>
-          <span
-            className={`story-page-impact-badge ${impactBadgeClass(detail.impact_score)}`}
-          >
-            Market Impact: {impactLabel(detail.impact_score)}
-          </span>
         </div>
 
         <hr className="story-page-divider" />
 
-        {/* ─── Section 1: What Happened ─── */}
+        {/* What Happened */}
         <div className="story-section">
           <h2 className="story-section-title">What happened</h2>
           <p>{detail.what_happened}</p>
@@ -116,7 +120,6 @@ export default function StoryPage({ detail, onClose }: Props) {
           </div>
         )}
 
-        {/* Bullet timeline / what matters next */}
         {detail.what_matters_next.length > 0 && (
           <div className="story-section">
             <h2 className="story-section-title">What to watch</h2>
@@ -128,10 +131,10 @@ export default function StoryPage({ detail, onClose }: Props) {
           </div>
         )}
 
-        {/* Sources & original reporting */}
+        {/* Sources */}
         {detail.citations.length > 0 && (
           <div className="story-section">
-            <h2 className="story-section-title">Original reporting</h2>
+            <h2 className="story-section-title">Sources</h2>
             <ul className="citation-list">
               {detail.citations.map((cit, i) => (
                 <li key={i} className="citation-item">
@@ -158,10 +161,10 @@ export default function StoryPage({ detail, onClose }: Props) {
 
         <hr className="story-page-divider" />
 
-        {/* ─── Section 2: How Markets Reacted ─── */}
+        {/* Scenarios */}
         {detail.most_likely_paths.length > 0 && (
           <div className="story-section">
-            <h2 className="story-section-title">How markets reacted</h2>
+            <h2 className="story-section-title">Market-implied scenarios</h2>
             {detail.most_likely_paths.map((scenario, i) => (
               <div key={i} className="scenario-card">
                 <div className="scenario-header">
@@ -174,7 +177,7 @@ export default function StoryPage({ detail, onClose }: Props) {
                 </div>
                 <p className="scenario-desc">{scenario.description}</p>
                 {scenario.implications && (
-                  <p className="scenario-desc" style={{ marginTop: 6 }}>
+                  <p className="scenario-desc" style={{ marginTop: 6, opacity: 0.8 }}>
                     {scenario.implications}
                   </p>
                 )}
@@ -195,7 +198,7 @@ export default function StoryPage({ detail, onClose }: Props) {
           </div>
         )}
 
-        {/* Upcoming deadlines */}
+        {/* Deadlines */}
         {detail.deadlines.length > 0 && (
           <div className="story-section">
             <h2 className="story-section-title">Upcoming deadlines</h2>
@@ -203,8 +206,7 @@ export default function StoryPage({ detail, onClose }: Props) {
               {detail.deadlines.map((dl, i) => (
                 <li key={i} className="deadline-item">
                   <span className="deadline-date">{formatDate(dl.date)}</span>
-                  {" \u2014 "}
-                  {dl.description}
+                  <span>{dl.description}</span>
                 </li>
               ))}
             </ul>
@@ -213,7 +215,7 @@ export default function StoryPage({ detail, onClose }: Props) {
 
         <hr className="story-page-divider" />
 
-        {/* ─── Section 3: ImpactScore Breakdown ─── */}
+        {/* ImpactScore Breakdown */}
         <div className="story-section">
           <div className="impact-breakdown">
             <button
@@ -237,10 +239,12 @@ export default function StoryPage({ detail, onClose }: Props) {
                     {impactLabel(detail.impact_score)}
                   </span>
                 </div>
-                <p style={{ fontSize: 13, color: "#8a8a85", marginTop: 8, lineHeight: 1.6 }}>
-                  ImpactScore reflects the speed and magnitude of market repricing
-                  in response to this story, weighted by effective liquidity
-                  and cross-market confirmation.
+                <p style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 8, lineHeight: 1.6, fontFamily: "var(--font-mono)" }}>
+                  ImpactScore blends story-layer quality (reporting, newsworthiness,
+                  source diversity) with market-evidence signals (post-publication
+                  reaction, cross-market confirmation, liquidity-weighted repricing).
+                  Penalties for manipulation risk, hype gap, and market triviality
+                  are applied before final scoring.
                 </p>
               </div>
             )}
